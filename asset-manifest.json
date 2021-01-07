@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/people-app/static/css/main.5f4fc285.chunk.css",
+    "main.css": "/people-app/static/css/main.fff0d4d0.chunk.css",
     "main.js": "/people-app/static/js/main.bb3d1835.chunk.js",
     "main.js.map": "/people-app/static/js/main.bb3d1835.chunk.js.map",
     "runtime-main.js": "/people-app/static/js/runtime-main.e5021944.js",
@@ -8,13 +8,13 @@
     "static/js/2.0fd47ed0.chunk.js": "/people-app/static/js/2.0fd47ed0.chunk.js",
     "static/js/2.0fd47ed0.chunk.js.map": "/people-app/static/js/2.0fd47ed0.chunk.js.map",
     "index.html": "/people-app/index.html",
-    "static/css/main.5f4fc285.chunk.css.map": "/people-app/static/css/main.5f4fc285.chunk.css.map",
+    "static/css/main.fff0d4d0.chunk.css.map": "/people-app/static/css/main.fff0d4d0.chunk.css.map",
     "static/js/2.0fd47ed0.chunk.js.LICENSE.txt": "/people-app/static/js/2.0fd47ed0.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.e5021944.js",
     "static/js/2.0fd47ed0.chunk.js",
-    "static/css/main.5f4fc285.chunk.css",
+    "static/css/main.fff0d4d0.chunk.css",
     "static/js/main.bb3d1835.chunk.js"
   ]
 }
