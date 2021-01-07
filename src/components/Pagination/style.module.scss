@@ -1,0 +1,20 @@
+.wrapper {
+  display: flex;
+  justify-content: space-around;
+  padding: 32px;
+  align-items: center;
+  button{
+    width: 40px;
+    height: 40px;
+    background: #c1c1fd;
+    border-radius: 50%;
+    border: 1px solid #c1c1fd;
+    outline: none;
+    font-size: 20px;
+    cursor: pointer;
+  }
+}
+
+.active{
+  color: cornflowerblue;
+}
