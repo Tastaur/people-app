@@ -1,7 +1,7 @@
 import {action, computed, makeObservable, observable, runInAction} from 'mobx';
 import {StoreType} from "../rootStore";
 import {User} from "./User";
-import {changeUser, createUser, getUsersPerPage} from "../../api";
+import {createUser, getUsersPerPage} from "../../api";
 import {mainData, userAPI} from "../../api/types";
 import {IBodyInterface} from "../../api/utils";
 import {prepareNewUserAPI} from "./utils";
