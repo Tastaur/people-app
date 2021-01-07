@@ -1,0 +1,29 @@
+.wrapper {
+  width: 32%;
+  height: 300px;
+  border: 2px solid black;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  &:hover{
+    background-color: #bfc1c7;
+  }
+  @media (max-width: 800px) {
+    width: 48%;
+  }
+  @media (max-width: 400px) {
+    width: 76%;
+    padding: 32px;
+  }
+}
+.emptyWrapper{
+  background-color: #61dafb;
+  border: 0;
+  &:hover{
+    background-color: #1c87a3;
+  }
+}

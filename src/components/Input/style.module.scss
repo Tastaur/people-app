@@ -1,0 +1,18 @@
+.wrapper{
+  text-align: left;
+  margin: 0 auto;
+  width: 80%;
+  input{
+    width: 100%;
+    outline: none;
+  }
+}
+
+.label{
+  margin: 5px 0;
+}
+
+.error{
+  color: red;
+  height: 20px;
+}

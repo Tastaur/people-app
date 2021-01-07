@@ -1,97 +1,68 @@
-import {
-    showExternals,
-    showFromApi,
-    showImage,
-    showLinks,
-    showNetwork,
-    showRating,
-    showSchedule,
-    webChannel
-} from "../../api/types";
-import {action, computed, observable} from "mobx";
+import {action, computed, makeObservable, observable} from "mobx";
+import {userAPI} from "../../api/types";
+import {deleteUser, changeUser} from "../../api";
+import {StoreType} from "../rootStore";
+import {IBodyInterface} from "../../api/utils";
+import {prepareNewUserAPI} from "./utils";
 
-export class Show {
-    @observable id: number = 0;
-    @observable url: string = ''
-    @observable name: string = ''
-    @observable type: string = ''
-    @observable language: string = ''
-    @observable genres: string[] | null = []
-    @observable status: string = ''
-    @observable runtime: number = 0
-    @observable premiered: string = ''
-    @observable officialSite: string = ''
-    @observable time: string = ''
-    @observable schedule: showSchedule = {
-        days: [],
-        time: '',
-    }
-    @observable rating: showRating = {
-        average: null,
-    }
-    @observable weight: number = 0
-    @observable network: showNetwork = {
-        country: {
-            code: '',
-            name: '',
-            timezone: '',
-        },
-        id: 0,
-        name: ''
-    }
-    @observable webChannel: webChannel | null = null
-
-    @observable externals: showExternals = {
-        imdb: '',
-        thetvdb: 0,
-        tvrage: 0
-    }
-    @observable image: showImage = {
-        medium: '',
-        original: ''
+export class User {
+    constructor(protected readonly store: StoreType) {
+        makeObservable(this,
+            {
+                id: observable,
+                fistName: observable,
+                lastName: observable,
+                email: observable,
+                avatar: observable,
+                change: action,
+                delete: action,
+                fromAPI: action,
+                fullName: computed
+            }
+        )
     }
 
-    @observable summary: string = ''
-    @observable updated: number = 0
-    @observable _link: showLinks = {
-        previousepisode: {
-            href: ''
-        },
-        self: {
-            href: ''
+    id: number = 0;
+    fistName: string = ''
+    lastName: string = ''
+    avatar: string = ''
+    email: string = ''
+
+    get fullName(): string {
+        return `${this.fistName} ${this.lastName}`
+    }
+
+    async delete() {
+        const {userStore} = this.store
+        userStore.isLoading = true
+        try {
+            const status = await deleteUser(this.id)
+            if (status) {
+                userStore.users.delete(this.id)
+            }
+        } catch (e) {
+            console.log(e)
+        }
+        userStore.isLoading = false
+    }
+
+    async change(data: IBodyInterface) {
+        try {
+            const body = prepareNewUserAPI(data,this.id)
+            const response = await changeUser(body)
+            if (response.updatedAt) {
+                this.fromAPI(body)
+            }
+        } catch (e) {
+            console.log(e)
         }
     }
 
-    @computed get genreToString(): string {
-        return (this.genres && this.genres.length > 0) ? this.genres.join(', ') : 'Without genres'
-    }
-
-    @computed get getCurrentRating(): string {
-        return this.rating.average ? `${this.rating.average}` : 'Without rating'
-    }
-
-
-    @action fromAPI(apiShow: showFromApi) {
-        this.id = apiShow.id;
-        this.url = apiShow.url;
-        this.name = apiShow.name;
-        this.type = apiShow.type;
-        this.language = apiShow.language;
-        this.genres = apiShow.genres;
-        this.status = apiShow.status;
-        this.runtime = apiShow.runtime;
-        this.premiered = apiShow.premiered;
-        this.officialSite = apiShow.officialSite;
-        this.time = apiShow.time;
-        this.schedule = apiShow.schedule;
-        this.rating = apiShow.rating;
-        this.weight = apiShow.weight;
-        this.network = apiShow.network;
-        this.webChannel = apiShow.webChannel;
-        this.externals = apiShow.externals;
-        this.image = apiShow.image;
-        this.summary = apiShow.summary;
-        this.updated = apiShow.updated;
-        this._link = apiShow._link;
+    fromAPI(user: userAPI) {
+        this.id = user.id;
+        this.fistName = user.first_name;
+        this.lastName = user.last_name;
+        this.avatar = user.avatar;
+        this.email = user.email
     }
 }

@@ -1,26 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect, useState} from 'react';
+import {observer} from "mobx-react";
+import {useStore} from "./hooks/useStore";
+import Pagination from "./components/Pagination";
+import Preloader from "./components/Preloader";
+import Content from "./components/Content";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const {userStore} = useStore()
+    const [currentPage, setCurrentPage] = useState(1)
+    useEffect(() => {
+        userStore.fetchUserPerPage(currentPage)
+    }, [currentPage])
+    if (userStore.isLoading) {
+        return <Preloader/>
+    }
+    return (
+        <div>
+            <Content userIds={userStore.userIds}/>
+            <Pagination currentPage={currentPage}
+                        pages={userStore.pages}
+                        setCurrentPage={setCurrentPage}/>
+        </div>
+    );
 }
 
-export default App;
+export default observer(App);

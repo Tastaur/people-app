@@ -1,71 +1,94 @@
-import {action, computed, makeAutoObservable, observable} from 'mobx';
+import {action, computed, makeObservable, observable, runInAction} from 'mobx';
 import {StoreType} from "../rootStore";
-import {Show} from "./Show";
-import {fetchShow} from "../../api/show";
-import {showFromApi} from "../../api/types";
-import {computedFn} from 'mobx-utils'
+import {User} from "./User";
+import {changeUser, createUser, getUsersPerPage} from "../../api";
+import {mainData, userAPI} from "../../api/types";
+import {IBodyInterface} from "../../api/utils";
+import {prepareNewUserAPI} from "./utils";
 
 
-export class ShowStore {
+export class UserStore {
     constructor(protected readonly store: StoreType) {
-        makeAutoObservable(this)
+        makeObservable(this,
+            {
+                users: observable,
+                pages: observable,
+                isLoading: observable,
+                userIds: computed,
+                getUserById: action,
+                fetchUserPerPage: action,
+                addUser: action,
+            }
+        )
     }
 
-    @observable shows: Map<number, Show> = new Map()
-    @observable isLoading: boolean = false
-    @observable isFinishLoading: boolean = false
+    // observable ------------------------------------------------------------------------------------------------------
+    users: Map<number, User> = new Map()
+    pages: number[] = []
+    isLoading: boolean = false
 
-    @computed get showsList(): Show[] {
-        return Array.from(this.shows.values())
+    // computed --------------------------------------------------------------------------------------------------------
+    get userIds(): number[] {
+        return Array.from(this.users.keys())
     }
 
-    getSortedShowList = computedFn((genre: string) => {
-        if (genre !== '') {
-            return this.showsList.filter(item => item.genres?.includes(genre))
-        } else {
-            return this.showsList
-        }
-    })
-
-
-    @computed get genreList(): string[] {
-        const genre = new Set<string>()
-        this.showsList.forEach(item => item.genres?.forEach(g => genre.add(g)))
-        return Array.from(genre.values())
+    // sync methods ----------------------------------------------------------------------------------------------------
+    getUserById(id: number): User | undefined {
+        return this.users.get(id)
     }
 
-    @action clearStore() {
-        this.shows = new Map()
-    }
-
-    @action workerAfterFetch(shows: showFromApi[]) {
-        this.clearStore();
-        for (const show of shows) {
-            this.setShowItem(show);
-        }
-        this.isLoading = false
-        this.isFinishLoading = true
-    }
-
-    @action
-    async getShows() {
+    // async methods ---------------------------------------------------------------------------------------------------
+    fetchUserPerPage = async (pageNumber: number) => {
         this.isLoading = true
         try {
-            const shows = await fetchShow();
-            this.workerAfterFetch(shows);
-        } catch (err) {
-            console.log(err.message)
+            const data = await getUsersPerPage(pageNumber);
+            runInAction(() => {
+                this.workerAfterFetch(data);
+            })
+        } catch (e) {
+            console.log(e)
         }
     }
 
-    @action setShowItem(show: showFromApi): void {
-        const showItem = new Show();
-        showItem.fromAPI(show);
-        this.shows.set(showItem.id, showItem);
+
+    addUser = async (data: IBodyInterface) => {
+        this.isLoading = true
+        try {
+            const response = await createUser(data)
+            if(response.id) {
+                const newUserData: userAPI = prepareNewUserAPI(data, Number(response.id))
+                this.setUser(newUserData)
+            }
+        } catch (e) {
+            console.log(e)
+        }
+        this.isLoading = false
     }
 
-    @action getShowById(id: number): Show | undefined {
-        return this.shows.get(id)
+
+    // private methods -------------------------------------------------------------------------------------------------
+
+    private clearStore() {
+        this.users = new Map()
+        this.pages = []
+    }
+
+    private workerAfterFetch(response: mainData) {
+        const {data, total_pages} = response
+        this.clearStore();
+        for (let i = 1; i <= total_pages; i++) {
+            this.pages.push(i)
+        }
+        for (const user of data) {
+            this.setUser(user);
+        }
+        this.isLoading = false
+    }
+
+    private setUser(userAPI: userAPI): void {
+        const user = new User(this.store);
+        user.fromAPI(userAPI);
+        this.users.set(user.id, user);
     }
 
 

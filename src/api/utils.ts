@@ -1,14 +1,28 @@
 import {mainUrl} from "./constant";
-import {mainData} from "./types";
 
-export const getAllUsers = async (): Promise<mainData> => {
-    return await fetch(mainUrl, {
-        method: 'GET'
-    }).then(async response => {
+interface IFetchMethodProps {
+    additionalUrl?: string,
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE'
+    requestBody?: IBodyInterface
+}
+
+export interface IBodyInterface {
+    email: string,
+    first_name: string,
+    last_name: string,
+    avatar: string,
+}
+
+export const fetchMethod = async ({additionalUrl, method, requestBody}: IFetchMethodProps) => {
+    const requestInit = method === 'GET' || method === 'DELETE'
+        ? {method}
+        : {method, body: JSON.stringify(requestBody)}
+        const url = additionalUrl ? `${mainUrl}${additionalUrl}`: mainUrl
+    return await fetch(url, requestInit).then(async response => {
         if ((response.status >= 200 && response.status < 400)) {
-            return response.json();
+            return method === "DELETE" ? response.status : response.json();
         }
     }).catch(err => {
-            return new Error(err)
-        })
+        return new Error(err)
+    })
 }
